@@ -46,16 +46,21 @@ class DoneList
         else
           e
         end
-    }.sort {|a, b|
-				# pjごと。issue自体は登場順のまま
-        a.project_id <=> b.project_id 
-    }
+		}.concat(options.with_todo ?
+			Issue.find(:all, 
+				:conditions => ["assigned_to_id=?", 2],
+				:order => "id"
+			).select{|issue| !issue.closed?} : [])
 
     statuses = {}
     already = {}
 
     current_pj = nil
-    events.each {|e|
+		i = 0
+    events.sort_by {|e|
+				# pjごと。issue自体は登場順のまま
+				[e.project_id, i += 1]
+    }.each {|e|
         #pp e
         if current_pj.nil? || current_pj.id != e.project_id
           project = Project.find(e.project_id)
@@ -93,6 +98,7 @@ options.uid = nil
 options.from_date = nil
 options.to_date = nil
 options.fn_config=nil
+options.with_todo=false
 options.config = {}
 
 OptionParser.new{|opt|
@@ -111,6 +117,10 @@ OptionParser.new{|opt|
 
   opt.on("--verbose", "") do |v|
     options.verbose = true
+  end
+
+  opt.on("--with-todo", "") do |v|
+    options.with_todo = true
   end
 
   opt.on("--config=path/to/yml", "") do |v|
