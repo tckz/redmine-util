@@ -50,7 +50,7 @@ class DoneList
 			Issue.find(:all, 
 				:conditions => ["assigned_to_id=?", 2],
 				:order => "id"
-			).select{|issue| !issue.closed?} : [])
+			).select{|issue| !issue.closed? && !issue.start_date.nil? && issue.start_date.to_time < options.to_date} : [])
 
     statuses = {}
     already = {}
@@ -61,7 +61,6 @@ class DoneList
 			# pjごと。issue自体は登場順のまま
 			[e.project_id, i += 1]
     }.each {|e|
-      #pp e
       if current_pj.nil? || current_pj.id != e.project_id
         project = Project.find(e.project_id)
         out.puts "--#{project.name}"
