@@ -35,17 +35,17 @@ class DoneList
     activity.scope = :all
 
     events = activity.events(from, to).select {|e|
-        if e.kind_of?(Journal) || e.kind_of?(Issue)
-          true
-        else
-          false
-        end
+      if e.kind_of?(Journal) || e.kind_of?(Issue)
+        true
+      else
+        false
+      end
     }.map {|e|
-        if e.kind_of?(Journal)
-          e.issue
-        else
-          e
-        end
+      if e.kind_of?(Journal)
+        e.issue
+      else
+        e
+      end
 		}.concat(options.with_todo ?
 			Issue.find(:all, 
 				:conditions => ["assigned_to_id=?", 2],
@@ -58,33 +58,33 @@ class DoneList
     current_pj = nil
 		i = 0
     events.sort_by {|e|
-				# pjごと。issue自体は登場順のまま
-				[e.project_id, i += 1]
+			# pjごと。issue自体は登場順のまま
+			[e.project_id, i += 1]
     }.each {|e|
-        #pp e
-        if current_pj.nil? || current_pj.id != e.project_id
-          project = Project.find(e.project_id)
-          out.puts "--#{project.name}"
-          current_pj = project
-        end
+      #pp e
+      if current_pj.nil? || current_pj.id != e.project_id
+        project = Project.find(e.project_id)
+        out.puts "--#{project.name}"
+        current_pj = project
+      end
 
-        key = "#{e.class.name},#{e.id}"
-        if already[key]
-          next
-        end
-        already[key] = e
+      key = "#{e.class.name},#{e.id}"
+      if already[key]
+        next
+      end
+      already[key] = e
 
-        if statuses[e.status_id]
-          status = statuses[e.status_id]
-        else
-          status = IssueStatus.find(e.status_id)
-          statuses[e.status_id] = status
-        end
+      if statuses[e.status_id]
+        status = statuses[e.status_id]
+      else
+        status = IssueStatus.find(e.status_id)
+        statuses[e.status_id] = status
+      end
 
-        mark = status.is_closed ? "*" : "o";
-      mark = options.config["marker"][mark] || mark
-      pj_identifier = options.config["project_identifier"][current_pj.identifier] || current_pj.identifier
-        out.puts "#{mark}[#{pj_identifier}]##{e.id} #{e.subject}"
+      mark = status.is_closed ? "*" : "o";
+			mark = options.config["marker"][mark] || mark
+			pj_identifier = options.config["project_identifier"][current_pj.identifier] || current_pj.identifier
+			out.puts "#{mark}[#{pj_identifier}]##{e.id} #{e.subject}"
     }
 
     0
@@ -99,7 +99,10 @@ options.from_date = nil
 options.to_date = nil
 options.fn_config=nil
 options.with_todo=false
-options.config = {}
+options.config = {
+	"marker" => {},
+	"project_identifier" => {}
+}
 
 OptionParser.new{|opt|
   # script/runner経由で動かすので$0だとrunnerになる
