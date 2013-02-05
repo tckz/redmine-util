@@ -106,6 +106,10 @@ OptionParser.new{|opt|
       options.user = User.active.find(options.uid);
       options.issue = Issue.find(options.issue_id);
       options.activity = TimeEntryActivity.find(options.activity_id);
+			o = options.issue.project.activities.select {|e| e == options.activity}
+			if o.length != 1
+				raise "activity=#{options.activity} is not valid for project=#{options.issue.project}"
+			end
     rescue => e
       raise "*** #{e}"
     end
