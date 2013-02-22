@@ -137,6 +137,17 @@ OptionParser.new{|opt|
     end
   end
 
+
+  opt.on("--this-month", "Set this month to from/to-date.") do |v|
+      options.from_date = Date.today.beginning_of_month
+      options.to_date = options.from_date.end_of_month
+	end
+
+  opt.on("--last-month", "Set last month to from/to-date.") do |v|
+      options.from_date = Date.today.prev_month.beginning_of_month
+      options.to_date = options.from_date.end_of_month
+	end
+
   opt.on("--this-week", "Set beginning of this week to from-date.") do |v|
       options.from_date = Date.today.beginning_of_week
 	end
