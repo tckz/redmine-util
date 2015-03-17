@@ -29,14 +29,10 @@ class TimeEntryList
       STDERR.puts "to:   #{to.to_date}"
     end
 
-    activity = Redmine::Activity::Fetcher.new(options.user,
-        :project => nil,
-        :with_subprojects => true,
-        :author => options.user);
-
-    activity.scope = :all
-
-    events = activity.events(from, to).select {|e| e.kind_of?(TimeEntry) }
+    events = TimeEntry.where(
+			spent_on: from..to,
+			user_id: options.uid,
+		)
 
     statuses = {}
 
@@ -53,11 +49,10 @@ class TimeEntryList
         statuses[issue.status_id] = status
       end
 
-
       mark = status.is_closed ? "*" : "o";
 			mark = options.config["marker"][mark] || mark
 			pj_identifier = options.config["project_identifier"][current_pj.identifier] || current_pj.identifier
-			out.puts "#{mark}[#{pj_identifier}]##{e.id}\t#{e.spent_on}\t#{e.hours}"
+			out.puts "#{mark}[#{pj_identifier}]##{issue.id}\t#{e.spent_on}\t#{e.hours}"
     }
 
     0
